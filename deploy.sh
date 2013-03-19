@@ -48,7 +48,8 @@ function prepareDeploy {
 	echo "pubspec.*" > .gitignore
 	echo ".gitignore" >> .gitignore
 	echo "*.deps" >> .gitignore  
-	echo "deploy.sh" >> .gitignore 
+	echo "deploy.sh" >> .gitignore
+	echo "Readme.md" >> .gitignore 
 	git rm .gitignore --cached
 
 	# Clean unused dir
