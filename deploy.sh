@@ -1,10 +1,24 @@
 #!/bin/bash 
 
+# Install packages
+function dependencies {
+   pub install   	
+}
+
+
 # compile dart to js
-function compile {
-   pub install
+function compileToJs {
    dart2js --checked --minify --out=$1.js $1
 }
+
+#run test if exist
+function runTest {
+	if [ -f "bin/runTests.sh" ];
+	then
+		bin/runTests.sh
+	fi
+}
+
 
 # Replace package symlinks with real files
 function copySymLink {
@@ -19,7 +33,6 @@ function copySymLink {
 }
 
 function prepareDeploy {
-	rm pubspec.*
 	# Copy package links
 	copySymLink ./packages/
 	copySymLink .
@@ -30,12 +43,18 @@ function prepareDeploy {
 	echo "*.deps" >> .gitignore  
 	echo "deploy.sh" >> .gitignore 
 	git rm .gitignore --cached
+
+	# Clean unused dir
+	rm pubspec.*
+	#rm test
+	#rm bin
 	# Cleaning : web/* to root
 	rm -rf web/packages
 	mv web/* .
 	rm -rf web
 }
 
+# Deploy to github page
 function deploy {
 	git add -A
 	git commit -m 'Deploy to github pages'
@@ -46,10 +65,19 @@ function deploy {
 
 if [ $# -ne 2 ]
 then
-  echo "Usage: TODO "
+  echo "Usage: deploy [remote] [dartScriptPath] ...."
+  echo "Example :"
+  echo "./deploy.sh git@github.com:nfrancois/balle.git web/balle.dart"
   exit 65
 fi
 
-compile $1
+remote=$1
+shift
+dependencies
+for param in "$*"
+do
+	compileToJs $param
+done
+runTest $2
 prepareDeploy 
-deploy $2
+deploy $remote
