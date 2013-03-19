@@ -5,20 +5,26 @@ function dependencies {
    pub install   	
 }
 
-
-# compile dart to js
-function compileToJs {
-   dart2js --checked --minify --out=$1.js $1
+# Run build script if exist
+function build {
+	if [ -f "bin/build.sh" ];
+	then
+		bin/build.sh
+	fi  	
 }
 
-#run test if exist
-function runTest {
-	if [ -f "bin/runTests.sh" ];
+# Run test if exist
+function runTests {
+	if [ -f "build.dart" ];
 	then
-		bin/runTests.sh
+		dart build.dart
 	fi
 }
 
+# Compile dart to js
+function compileToJs {
+   dart2js --checked --minify --out=$1.js $1
+}
 
 # Replace package symlinks with real files
 function copySymLink {
@@ -32,6 +38,7 @@ function copySymLink {
 	done
 }
 
+# Modify files organisation for deploy
 function prepareDeploy {
 	# Copy package links
 	copySymLink ./packages/
@@ -78,6 +85,7 @@ for param in "$*"
 do
 	compileToJs $param
 done
-runTest $2
+build
+runTests $2
 prepareDeploy 
 deploy $remote
