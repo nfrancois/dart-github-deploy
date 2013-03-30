@@ -56,10 +56,10 @@ function prepareDeploy {
 	rm pubspec.*
 	#rm test
 	#rm bin
-	# Cleaning : web/* to root
-	rm -rf web/packages
-	mv web/* .
-	rm -rf web
+	# Cleaning : $1/* to root
+	rm -rf $1/packages
+	mv $1/* .
+	rm -rf $1
 }
 
 # Deploy to github page
@@ -80,13 +80,14 @@ then
 fi
 
 remote=$1
-shift
 dependencies
-for param in "$*"
-do
-	compileToJs $param
-done
+#shift
+#for param in "$*"
+#do
+compileToJs $2
+#done
 build
-runTests $2
-prepareDeploy 
+runTests 
+dir =  $(echo $2 | cut -d"/" -f1);
+prepareDeploy $dir
 deploy $remote
