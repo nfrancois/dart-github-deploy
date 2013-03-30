@@ -2,32 +2,37 @@
 
 # Install packages
 function dependencies {
+   echo "Download dependencies..."
    pub install   	
 }
 
 # Run build script if exist
 function build {
-	if [ -f "bin/build.sh" ];
+	if [ -f "bin/runTests.sh" ];
 	then
-		bin/build.sh
+		echo "Run build..."
+		dart build.dart 
 	fi  	
 }
 
 # Run test if exist
 function runTests {
-	if [ -f "build.dart" ];
+	if [ -f "bin/runTests.sh" ];
 	then
-		dart build.dart
+		echo "Run build..."
+		bin/runTests.sh
 	fi
 }
 
 # Compile dart to js
 function compileToJs {
+   echo "Compile to js..."
    dart2js --checked --minify --out=$1.js $1
 }
 
 # Replace package symlinks with real files
 function copySymLink {
+	echo "Copy Sym Link..."
 	for dir in $(find $1 -type l)
 	do
 		local rawDir=$(readlink -f $dir)
@@ -40,6 +45,7 @@ function copySymLink {
 
 # Modify files organisation for deploy
 function prepareDeploy {
+	echo "Prepare deploy..."
 	# Copy package links
 	copySymLink ./packages/
 	copySymLink .
@@ -57,6 +63,7 @@ function prepareDeploy {
 	#rm test
 	#rm bin
 	# Cleaning : $1/* to root
+	echo "Adding files from " $1
 	rm -rf $1/packages
 	mv $1/* .
 	rm -rf $1
