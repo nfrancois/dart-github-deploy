@@ -95,6 +95,6 @@ compileToJs $2
 #done
 build
 runTests 
-dirToDeploy=`echo $2 | cut -d'|' -f1`
+dirToDeploy=`echo $2 | cut -d'/' -f1`
 prepareDeploy $runTests
 deploy $remote
