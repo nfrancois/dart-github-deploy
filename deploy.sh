@@ -95,6 +95,6 @@ compileToJs $2
 #done
 build
 runTests 
-dir =  $(echo $2 | cut -d"/" -f1);
-prepareDeploy $dir
+dirToDeploy=`echo $2 | awk -F"/" '{print $1}'`
+prepareDeploy $runTests
 deploy $remote
