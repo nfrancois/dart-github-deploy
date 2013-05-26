@@ -6,95 +6,67 @@ function dependencies {
    pub install   	
 }
 
-# Run build script if exist
-function build {
-	if [ -f "bin/runTests.sh" ];
-	then
-		echo "Run build..."
-		dart build.dart 
-	fi  	
-}
-
 # Run test if exist
 function runTests {
-	if [ -f "bin/runTests.sh" ];
+	if [ -f "test/run.sh" ];
 	then
-		echo "Run build..."
-		bin/runTests.sh
+		echo "Run tests..."
+		test/run.sh
 	fi
 }
 
-# Compile dart to js
-function compileToJs {
-   echo "Compile to js..."
-   dart2js --checked --minify --out=$1.js $1
-}
-
-# Replace package symlinks with real files
-function copySymLink {
-	echo "Copy Sym Link..."
-	for dir in $(find $1 -type l)
-	do
-		local rawDir=$(readlink -f $dir)
-		echo Copy $rawDir to $dir 
-		cp -r $rawDir $dir.tmp
-		rm -r $dir
-		mv $dir.tmp $dir
-	done
+# Deploy
+function build {
+	if [ -f "build.dart" ];
+	then
+		echo "Build...."
+		dart build.dart
+	fi	
+	echo "Build deployment..."
+	pub deploy
 }
 
 # Modify files organisation for deploy
 function prepareDeploy {
 	echo "Prepare deploy..."
-	# Copy package links
-	copySymLink ./packages/
-	copySymLink .
 
 	# Rewrite new .gitignore
-	echo "pubspec.*" > .gitignore
-	echo ".gitignore" >> .gitignore
-	echo "*.deps" >> .gitignore  
+	echo ".gitignore" > .gitignore 
 	echo "deploy.sh" >> .gitignore
-	echo "Readme.md" >> .gitignore 
+	echo "Readme.md" >> .gitignore
 	git rm .gitignore --cached
 
 	# Clean unused dir
 	rm pubspec.*
-	#rm test
-	#rm bin
-	# Cleaning : $1/* to root
-	echo "Adding files from " $1
-	rm -rf $1/packages
-	mv $1/* .
-	rm -rf $1
+	rm -rf packages
+	rm -rf test
+	rm -rf bin
+	rm -rf web
+	cp -r deploy/* .
+	rm -rf deploy
 }
 
 # Deploy to github page
 function deploy {
+	ls -l
 	git add -A
 	git commit -m 'Deploy to github pages'
-	git remote add github $1
+	git remote add github git@github.com:$1.git
 	git push --force github master:gh-pages
 }
 
 
-if [ $# -ne 2 ]
+if [ $# -ne 1 ]
 then
-  echo "Usage: deploy [remote] [dartScriptPath] ...."
+  echo "Usage: deploy [user/project]"
   echo "Example :"
-  echo "./deploy.sh git@github.com:nfrancois/balle.git web/balle.dart"
+  echo "./deploy.sh nfrancois/balle"
   exit 65
 fi
 
 remote=$1
 dependencies
-#shift
-#for param in "$*"
-#do
-compileToJs $2
-#done
-build
 runTests 
-dirToDeploy=`echo $2 | cut -d'/' -f1`
-prepareDeploy $runTests
+build
+prepareDeploy
 deploy $remote
