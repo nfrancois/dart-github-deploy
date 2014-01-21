@@ -3,7 +3,7 @@
 # Install packages
 function dependencies {
    echo "Download dependencies..."
-   pub install   	
+   pub get   	
 }
 
 # Run test if exist
@@ -23,7 +23,7 @@ function build {
 		dart build.dart
 	fi	
 	echo "Build deployment..."
-	pub deploy
+	pub build
 }
 
 # Modify files organisation for deploy
@@ -42,8 +42,8 @@ function prepareDeploy {
 	rm -rf test
 	rm -rf bin
 	rm -rf web
-	cp -r deploy/* .
-	rm -rf deploy
+	cp -r build/* .
+	rm -rf build
 }
 
 # Deploy to github page
