@@ -42,7 +42,7 @@ function prepareDeploy {
 	rm -rf test
 	rm -rf bin
 	rm -rf web
-	cp -r build/* .
+	cp -r build/web/* .
 	rm -rf build
 }
 
